@@ -1,0 +1,6 @@
+{
+    "telegram_url": "https://api.telegram.org/bot",
+    "content_type": "application/json",
+    "send_method": "sendMessage",
+    "parse_mode": "html"
+}
