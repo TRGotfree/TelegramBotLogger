@@ -18,8 +18,10 @@ class BotLogger {
         this.botToken = botToken;
     }
 
-    sendInfo(infoMessage, recipients, prefixText = "") {
+   async sendInfo(infoMessage, recipients, prefixText = "") {
+
         try {
+
             if (!infoMessage)
                 throw new Error("Input parameter \"logMessage\" for \"sendInfo\" couldn't be null or undefined!");
 
@@ -32,13 +34,12 @@ class BotLogger {
             if (prefixText) infoMessage = prefixText + " " + infoMessage;
 
             for (let i = 0; i < recipients.length; i++) {
+
                 const recipient = recipients[i];
+                const requestBody = this.__getRequestBody(infoMessage, recipient);
+                const requestOptions = this.__getRequestOptions(Buffer.byteLength(requestBody));
 
-                const requestOptions = this.__getRequestOptions();
-                const requestBody = this.__getRequestBody(infoMessage);
-
-                //TO-DO
-                https.request(requestOptions);
+                await this.__sendRequest(requestOptions, requestBody);
             }
 
         } catch (error) {
@@ -62,19 +63,68 @@ class BotLogger {
     }
 
     //TO-DO
-    __getRequestOptions() {
+    __getRequestOptions(contentLength) {
+
+        if (!contentLength)
+            throw new Error("\"contentLength\" is null or undefined!");
+
         return {
+            host: this.config.telegram_url + process.env.TOKEN,
+            query: this.config.send_method,
             method: "POST",
             headers: {
-                "Content-Type": !this.config.content_type ? "application/json" : this.config.content_type
+                "Content-Type": !this.config.content_type ? "application/json" : this.config.content_type,
+                "Content-Length": contentLength
             }
         };
     }
 
-    //TO-DO
-    __getRequestBody(message) {
-        return {
+    __getRequestBody(message, recipient) {
 
+        if (!message)
+            throw new Error("\"message\" is null or undefined!");
+
+        if (!recipient)
+            throw new Error("\"recipient\" is null or undefined!");
+
+        return {
+            chat_id: recipient,
+            text: message,
+            parse_mode: this.config.parse_mode,
+            disable_web_page_preview: true,
+            disable_notification: this.config.is_notification_disabled
         }
+    }
+
+    __sendRequest(requestOptions, requestBody) {
+
+        if (!requestOptions)
+            throw new Error("\"requestOptions\" is null or undefined!");
+
+        if (!requestBody)
+            throw new Error("\"requestBody\" is null or undefined!");
+
+        return new Promise((resolve, reject) => {
+            const request = https.request(requestOptions, function (response) {
+
+                let responseBody = "";
+                response.on("data", function (data) {
+                    responseBody = responseBody + data;
+                });
+                response.on("end", function () {
+                    if (response.statusCode !== 200)
+                        return reject(new Error("Telegram api return: " + response.statusCode));
+
+                    resolve();
+                });
+            });
+
+            request.on("error", function (error) {
+                reject(error);
+            });
+
+            request.write(requestBody);
+            request.end();
+        });
     }
 }
