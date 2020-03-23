@@ -18,7 +18,7 @@ class BotLogger {
         this.botToken = botToken;
     }
 
-   async sendInfo(infoMessage, recipients, prefixText = "") {
+    async sendInfo(infoMessage, recipients, prefixText = "INFO") {
 
         try {
 
@@ -48,7 +48,7 @@ class BotLogger {
     }
 
     //TO-DO
-    sendError(error, recipients, prefixText = "") {
+    sendError(error, recipients, prefixText = "ERROR") {
         try {
 
             if (!error)
@@ -57,12 +57,25 @@ class BotLogger {
             if (!Array.isArray(recipients))
                 throw new Error("Input parameter \"recipients\" for \"sendError\" must be an array!");
 
+            if (typeof error !== "string")
+                error = JSON.stringify(error);
+
+            if (prefixText) error = prefixText + " " + error;
+            for (let i = 0; i < recipients.length; i++) {
+
+                const recipient = recipients[i];
+                const requestBody = this.__getRequestBody(error, recipient);
+                const requestOptions = this.__getRequestOptions(Buffer.byteLength(requestBody));
+
+                await this.__sendRequest(requestOptions, requestBody);
+            }
+
         } catch (error) {
             throw error;
         }
     }
 
-    //TO-DO
+
     __getRequestOptions(contentLength) {
 
         if (!contentLength)
@@ -96,7 +109,7 @@ class BotLogger {
         }
     }
 
-    __sendRequest(requestOptions, requestBody) {
+    __sendRequest(requestOptions, requestBody, recipients) {
 
         if (!requestOptions)
             throw new Error("\"requestOptions\" is null or undefined!");
