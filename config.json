@@ -3,5 +3,6 @@
     "content_type": "application/json",
     "send_method": "sendMessage",
     "parse_mode": "html",
-    "is_notification_disabled": false
+    "is_notification_disabled": false,
+    "recipients": []
 }

@@ -47,7 +47,6 @@ class BotLogger {
         }
     }
 
-    //TO-DO
     sendError(error, recipients, prefixText = "ERROR") {
         try {
 
@@ -82,7 +81,7 @@ class BotLogger {
             throw new Error("\"contentLength\" is null or undefined!");
 
         return {
-            host: this.config.telegram_url + process.env.TOKEN,
+            host: this.config.telegram_url + this.botToken,
             query: this.config.send_method,
             method: "POST",
             headers: {
@@ -141,3 +140,5 @@ class BotLogger {
         });
     }
 }
+
+module.exports = BotLogger;
