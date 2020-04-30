@@ -3,16 +3,16 @@ const https = require("https");
 class BotLogger {
     constructor(botToken, config) {
         if (!botToken)
-            throw new Error("Input parameter \"botToken\" for BotLogger constructor couldn't be null or undefined!");
+            throw "Input parameter \"botToken\" for BotLogger constructor couldn't be null or undefined!";
 
         if (typeof botToken !== "string")
-            throw new Error("Input parameter \"botToken\" for BotLogger constructor must be the string type!");
+            throw "Input parameter \"botToken\" for BotLogger constructor must be the string type!";
 
         if (!config)
-            throw new Error("Input parameter \"config\" for BotLogger constructor couldn't be null or undefined!");
+            throw "Input parameter \"config\" for BotLogger constructor couldn't be null or undefined!";
 
         if (typeof config !== "object")
-            throw new Error("Input parameter \"config\" for BotLogger must be an object!");
+            throw "Input parameter \"config\" for BotLogger must be an object!";
 
         this.config = config;
         this.botToken = botToken;
@@ -23,10 +23,10 @@ class BotLogger {
         try {
 
             if (!infoMessage)
-                throw new Error("Input parameter \"logMessage\" for \"sendInfo\" couldn't be null or undefined!");
+                throw "Input parameter \"logMessage\" for \"sendInfo\" couldn't be null or undefined!";
 
             if (!Array.isArray(recipients))
-                throw new Error("Input parameter \"recipients\" for \"sendInfo\" must be an array!");
+                throw "Input parameter \"recipients\" for \"sendInfo\" must be an array!";
 
             if (typeof infoMessage !== "string")
                 infoMessage = JSON.stringify(infoMessage);
@@ -47,14 +47,14 @@ class BotLogger {
         }
     }
 
-    sendError(error, recipients, prefixText = "ERROR") {
+    async sendError(error, recipients, prefixText = "ERROR") {
         try {
 
             if (!error)
-                throw new Error("Input parameter \"error\" for \"sendError\" couldn't be null or undefined!");
+                throw "Input parameter \"error\" for \"sendError\" couldn't be null or undefined!";
 
             if (!Array.isArray(recipients))
-                throw new Error("Input parameter \"recipients\" for \"sendError\" must be an array!");
+                throw "Input parameter \"recipients\" for \"sendError\" must be an array!";
 
             if (typeof error !== "string")
                 error = JSON.stringify(error);
@@ -74,11 +74,10 @@ class BotLogger {
         }
     }
 
-
     __getRequestOptions(contentLength) {
 
         if (!contentLength)
-            throw new Error("\"contentLength\" is null or undefined!");
+            throw "\"contentLength\" is null or undefined!";
 
         return {
             host: this.config.telegram_url + this.botToken,
@@ -94,10 +93,10 @@ class BotLogger {
     __getRequestBody(message, recipient) {
 
         if (!message)
-            throw new Error("\"message\" is null or undefined!");
+            throw "\"message\" is null or undefined!";
 
         if (!recipient)
-            throw new Error("\"recipient\" is null or undefined!");
+            throw "\"recipient\" is null or undefined!";
 
         return {
             chat_id: recipient,
@@ -111,10 +110,10 @@ class BotLogger {
     __sendRequest(requestOptions, requestBody, recipients) {
 
         if (!requestOptions)
-            throw new Error("\"requestOptions\" is null or undefined!");
+            throw "\"requestOptions\" is null or undefined!";
 
         if (!requestBody)
-            throw new Error("\"requestBody\" is null or undefined!");
+            throw "\"requestBody\" is null or undefined!";
 
         return new Promise((resolve, reject) => {
             const request = https.request(requestOptions, function (response) {
@@ -125,7 +124,7 @@ class BotLogger {
                 });
                 response.on("end", function () {
                     if (response.statusCode !== 200)
-                        return reject(new Error("Telegram api return: " + response.statusCode));
+                        return reject("Telegram api return: " + response.statusCode);
 
                     resolve();
                 });
